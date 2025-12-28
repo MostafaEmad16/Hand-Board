@@ -52,7 +52,7 @@ export default function WordEditor({
     null
   );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+  const [pdfNumPages, setPdfNumPages] = useState<number>(0);
   // PDF rendering/annotation refs
   const pdfCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const pdfAnnotCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -61,6 +61,7 @@ export default function WordEditor({
   const [annotWidth, setAnnotWidth] = useState<number>(3);
   const pdfPagesRef = useRef<HTMLDivElement | null>(null);
   const annotCanvasesRef = useRef<HTMLCanvasElement[]>([]);
+  const pdfDocRef = useRef<any | null>(null);
 
   const [sliderValue, setSliderValue] = useState(0);
   const [scrollMax, setScrollMax] = useState(0);

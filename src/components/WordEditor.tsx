@@ -56,9 +56,6 @@ export default function WordEditor({
   // PDF rendering/annotation refs
   const pdfCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const pdfAnnotCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const isDrawingRef = useRef(false);
-  const lastPosRef = useRef<{ x: number; y: number } | null>(null);
-  const [pdfNumPages, setPdfNumPages] = useState<number>(0);
   const [pdfScale, setPdfScale] = useState<number>(1.5);
   const [annotColor, setAnnotColor] = useState<string>("#ff0000");
   const [annotWidth, setAnnotWidth] = useState<number>(3);
@@ -277,19 +274,17 @@ export default function WordEditor({
         const ab = await file.arrayBuffer();
         // dynamic import pdfjs (legacy build) and set worker
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pdfjsLib = await import(
-          /* @vite-ignore */ "pdfjs-dist/legacy/build/pdf"
-        );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pdfjsLib = await import("pdfjs-dist");
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (pdfjsLib as any).GlobalWorkerOptions.workerSrc = new URL(
-          "pdfjs-dist/legacy/build/pdf.worker.min.js",
+          "pdfjs-dist/build/pdf.worker.min.js",
           import.meta.url
         ).toString();
-
         const loadingTask = (pdfjsLib as any).getDocument({ data: ab });
         const pdf = await loadingTask.promise;
         setPdfNumPages(pdf.numPages || 0);
-
         // render all pages into the pages container so we can scroll
         const pagesContainer = pdfPagesRef.current;
         if (!pagesContainer) return;
@@ -506,17 +501,13 @@ export default function WordEditor({
   };
 
   // Reference to loaded PDF document (pdfjs)
-  const pdfDocRef = useRef<any | null>(null);
-
   // Render PDF pages from ArrayBuffer using current pdfScale
   const renderPdfPages = async (ab: ArrayBuffer, scale: number) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfjsLib = await import(
-      /* @vite-ignore */ "pdfjs-dist/legacy/build/pdf"
-    );
+    const pdfjsLib = await import("pdfjs-dist");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (pdfjsLib as any).GlobalWorkerOptions.workerSrc = new URL(
-      "pdfjs-dist/legacy/build/pdf.worker.min.js",
+      "pdfjs-dist/build/pdf.worker.min.js",
       import.meta.url
     ).toString();
 
@@ -586,7 +577,9 @@ export default function WordEditor({
         lastPos = getPos(e);
         try {
           (e.target as Element).setPointerCapture?.(e.pointerId);
-        } catch (e) {}
+        } catch (e) {
+          console.error(e);
+        }
       };
 
       const onMove = (e: PointerEvent) => {
@@ -606,7 +599,9 @@ export default function WordEditor({
         lastPos = null;
         try {
           (e.target as Element).releasePointerCapture?.(e.pointerId);
-        } catch (e) {}
+        } catch (e) {
+          console.error(e);
+        }
       };
 
       aCanvas.addEventListener("pointerdown", onDown);
